@@ -4,7 +4,7 @@ DESTDIR ?=
 PREFIX  ?= /usr
 
 all:
-    go build
+    go build -o haste-it
 
 install:
     install -D -m 00755 haste-it $(DESTDIR)$(PREFIX)/bin/haste-it
