@@ -39,6 +39,10 @@ func haste(f *os.File) {
 		println("Failed to parse response")
 		os.Exit(1)
 	}
+    if len(v.Key) == 0 {
+        println("Haste failed. Too much text?")
+        os.Exit(1)
+    }
 	println("https://hastebin.com/" + v.Key)
 }
 
