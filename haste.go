@@ -1,5 +1,5 @@
 //
-// Copyright © 2016 Bryan T. Meyers <bmeyers@datadrake.com>
+// Copyright © 2017 Bryan T. Meyers <bmeyers@datadrake.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package main
 
 import (
 	"encoding/json"
+    "flag"
 	"net/http"
 	"os"
 )
@@ -54,15 +55,24 @@ func hasteFile(fp string) {
 func usage() {
 	print("haste-it --- Simple little client for hastebin\n\n")
 	print("Usage: haste [file]\n\n")
-	print("    Read from [file] or stdin\n\n")
+	print("    Read from specified [file] or stdin\n\n")
+    flag.PrintDefaults()
 }
 
 func main() {
-	switch len(os.Args) {
-	case 1:
+    flag.Usage = usage
+    var h1 = flag.Bool("h", false, "Same as --help")
+    var h2 = flag.Bool("-help", false, "Print usage")
+    flag.Parse()
+    if *h1 || *h2 {
+        usage()
+        os.Exit(0)
+    }
+	switch len(flag.Args()) {
+	case 0:
 		haste(os.Stdin)
-	case 2:
-		hasteFile(os.Args[1])
+	case 1:
+		hasteFile(flag.Args()[0])
 	default:
 		usage()
 		os.Exit(1)
