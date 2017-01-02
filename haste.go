@@ -33,6 +33,7 @@ func haste(f *os.File) {
 	d := json.NewDecoder(r.Body)
 	var v struct {
 		Key string
+        Message string
 	}
 	err = d.Decode(&v)
 	if err != nil {
@@ -40,7 +41,11 @@ func haste(f *os.File) {
 		os.Exit(1)
 	}
     if len(v.Key) == 0 {
-        println("Haste failed. Too much text?")
+        if len(v.Message) > 0 {
+            println("Haste failed, reason: " + v.Message)
+        } else {
+            println("Haste failed for unknown reason")
+        }
         os.Exit(1)
     }
 	println("https://hastebin.com/" + v.Key)
