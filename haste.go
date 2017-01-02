@@ -18,7 +18,7 @@ package main
 
 import (
 	"encoding/json"
-    "flag"
+	"flag"
 	"net/http"
 	"os"
 )
@@ -32,22 +32,22 @@ func haste(f *os.File) {
 	}
 	d := json.NewDecoder(r.Body)
 	var v struct {
-		Key string
-        Message string
+		Key     string
+		Message string
 	}
 	err = d.Decode(&v)
 	if err != nil {
 		println("Failed to parse response")
 		os.Exit(1)
 	}
-    if len(v.Key) == 0 {
-        if len(v.Message) > 0 {
-            println("Haste failed, reason: " + v.Message)
-        } else {
-            println("Haste failed for unknown reason")
-        }
-        os.Exit(1)
-    }
+	if len(v.Key) == 0 {
+		if len(v.Message) > 0 {
+			println("Haste failed, reason: " + v.Message)
+		} else {
+			println("Haste failed for unknown reason")
+		}
+		os.Exit(1)
+	}
 	println("https://hastebin.com/" + v.Key)
 }
 
@@ -65,18 +65,18 @@ func usage() {
 	print("haste-it --- Simple little client for hastebin\n\n")
 	print("Usage: haste [file]\n\n")
 	print("    Read from specified [file] or stdin\n\n")
-    flag.PrintDefaults()
+	flag.PrintDefaults()
 }
 
 func main() {
-    flag.Usage = usage
-    var h1 = flag.Bool("h", false, "Same as --help")
-    var h2 = flag.Bool("-help", false, "Print usage")
-    flag.Parse()
-    if *h1 || *h2 {
-        usage()
-        os.Exit(0)
-    }
+	flag.Usage = usage
+	var h1 = flag.Bool("h", false, "Same as --help")
+	var h2 = flag.Bool("-help", false, "Print usage")
+	flag.Parse()
+	if *h1 || *h2 {
+		usage()
+		os.Exit(0)
+	}
 	switch len(flag.Args()) {
 	case 0:
 		haste(os.Stdin)
