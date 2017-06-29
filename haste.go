@@ -38,6 +38,7 @@ func haste(f *os.File) {
 	err = d.Decode(&v)
 	if err != nil {
 		println("Failed to parse response")
+        println("Error Code: " + r.Status)
 		os.Exit(1)
 	}
 	if len(v.Key) == 0 {
