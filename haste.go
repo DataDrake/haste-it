@@ -1,5 +1,5 @@
 //
-// Copyright 2017 Bryan T. Meyers <bmeyers@datadrake.com>
+// Copyright 2017-2020 Bryan T. Meyers <bmeyers@datadrake.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,48 +18,42 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"net/http"
 	"os"
 )
 
-func haste(f *os.File) {
-	c := &http.Client{}
-	r, err := c.Post("https://hastebin.com/documents", "application/json", f)
+func haste(f *os.File) error {
+	r, err := http.Post("https://hastebin.com/documents", "application/json", f)
 	if err != nil {
-		println("Failed to send, reason: " + err.Error())
-		os.Exit(1)
+		return errors.New("failed to send, reason: " + err.Error())
 	}
-	d := json.NewDecoder(r.Body)
+	defer r.Body.Close()
 	var v struct {
 		Key     string
 		Message string
 	}
-	err = d.Decode(&v)
-	if err != nil {
-		println("Failed to parse response")
-        println("Error Code: " + r.Status)
-		os.Exit(1)
+	if err = json.NewDecoder(r.Body).Decode(&v); err != nil {
+		return errors.New("failed to parse response, code: " + r.Status)
 	}
 	if len(v.Key) == 0 {
 		if len(v.Message) > 0 {
-			println("Haste failed, reason: " + v.Message)
-		} else {
-			println("Haste failed for unknown reason")
+			return errors.New("haste failed, reason: " + v.Message)
 		}
-		os.Exit(1)
+		return errors.New("Haste failed for unknown reason")
 	}
 	println("https://hastebin.com/" + v.Key)
+	return nil
 }
 
-func hasteFile(fp string) {
+func hasteFile(fp string) error {
 	f, err := os.Open(fp)
 	if err != nil {
-		println("Failed to open file: '" + fp + "', reason: " + err.Error())
-		os.Exit(1)
+		return errors.New("Failed to open file: '" + fp + "', reason: " + err.Error())
 	}
 	defer f.Close()
-	haste(f)
+	return haste(f)
 }
 
 func usage() {
@@ -70,7 +64,6 @@ func usage() {
 }
 
 func main() {
-	flag.Usage = usage
 	var h1 = flag.Bool("h", false, "Same as --help")
 	var h2 = flag.Bool("-help", false, "Print usage")
 	flag.Parse()
@@ -78,13 +71,18 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	var err error
 	switch len(flag.Args()) {
 	case 0:
-		haste(os.Stdin)
+		err = haste(os.Stdin)
 	case 1:
-		hasteFile(flag.Args()[0])
+		err = hasteFile(flag.Args()[0])
 	default:
 		usage()
+		os.Exit(1)
+	}
+	if err != nil {
+		println(err)
 		os.Exit(1)
 	}
 }
