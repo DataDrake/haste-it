@@ -4,7 +4,7 @@ DESTDIR ?=
 PREFIX  ?= /usr
 
 all:
-    go build -ldflags="-s -w"
+    CGO_ENABLED=0 go build -ldflags="-s -w"
 
 install:
     install -D -m 00755 haste-it $(DESTDIR)$(PREFIX)/bin/haste-it
