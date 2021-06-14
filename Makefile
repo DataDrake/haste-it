@@ -1,18 +1,20 @@
-.RECIPEPREFIX != ps
-
+PKGNAME = haste-it
 DESTDIR ?=
 PREFIX  ?= /usr
 
 all:
-    CGO_ENABLED=0 go build -ldflags="-s -w"
+	CGO_ENABLED=0 go build -ldflags="-s -w"
+
+validate:
+	go vet ./...
 
 install:
-    install -D -m 00755 haste-it $(DESTDIR)$(PREFIX)/bin/haste-it
-    ln -s $(PREFIX)/bin/haste-it $(DESTDIR)$(PREFIX)/bin/haste
+	install -D -m 00755 $(PKGNAME) $(DESTDIR)$(PREFIX)/bin/$(PKGNAME)
+	ln -s $(PREFIX)/bin/$(PKGNAME) $(DESTDIR)$(PREFIX)/bin/haste
 
 uninstall:
-    unlink $(DESTDIR)$(PREFIX)/bin/haste
-    rm $(DESTDIR)$(PREFIX)/bin/haste-it
+	unlink $(DESTDIR)$(PREFIX)/bin/haste
+	rm $(DESTDIR)$(PREFIX)/bin/$(PKGNAME)
 
 clean:
-    rm haste-it
+	rm $(PKGNAME)
